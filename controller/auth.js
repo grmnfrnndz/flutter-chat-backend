@@ -54,9 +54,9 @@ const login = async (req, res=response) => {
 
     try {
         
-        const usuarioDB = await Usuario.findOne({ email });
+        const usuario = await Usuario.findOne({ email });
 
-        if (!usuarioDB) {
+        if (!usuario) {
             return res.status(404).json({
                 ok: false,
                 msg: 'Email no encontrado'
@@ -64,7 +64,7 @@ const login = async (req, res=response) => {
         }
 
         // validar el password
-        const validPassword = bcrypt.compareSync(password, usuarioDB.password);
+        const validPassword = bcrypt.compareSync(password, usuario.password);
 
         if (!validPassword) {
             return res.status(400).json({
@@ -74,11 +74,11 @@ const login = async (req, res=response) => {
         }
 
         // generar JWT
-        const token = await generarJWT(usuarioDB.id);
+        const token = await generarJWT(usuario.id);
 
         res.json({
             ok: true,
-            usuarioDB,
+            usuario,
             token
         });
 
@@ -86,7 +86,7 @@ const login = async (req, res=response) => {
     } catch (error) {
         console.log(error);
         res.status(500).json({
-            ok: true,
+            ok: false,
             msg: process.env.NOTIF_ERROR
         });    
     }
@@ -106,11 +106,11 @@ const renewToken = async (req, res=response) => {
 
         // obtener el usuario desde la base de datos
 
-        const usuarioDB = await Usuario.findById(uid);
+        const usuario = await Usuario.findById(uid);
 
         res.json({
             ok: true,
-            usuarioDB,
+            usuario,
             token
         });
 
@@ -118,7 +118,7 @@ const renewToken = async (req, res=response) => {
     } catch (error) {
         console.log(error);
         res.status(500).json({
-            ok: true,
+            ok: false,
             msg: process.env.NOTIF_ERROR
         });    
     }
